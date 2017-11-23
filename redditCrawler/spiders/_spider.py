@@ -25,20 +25,3 @@ class RedditSpider(scrapy.Spider):
 ##        self.log('Saved file %s' % filename)
 
 
-
-
-#nextP = response.xpath('//span[@class="next-button"]/a/@href').extract()
-#if link, copy the link address
-#if post, copy the the post context
-#bitcoin/cryptocurrency
-#questioin - ?
-#education
-#doom and gloom
-#tech
-#graham/value/buffet/berkshire
-#how do I group repeated words/themes/contexts for a given subreddit?
-#reconstruct a webpage with garbage filtering
-
-##titles = response.xpath('//p[@class="title"]/a[@class="title may-blank "]/text()').extract()
-##response.css('li.next a::attr(href)').extract_first()
-## b = response.css('p.title a::attr(href)').extract()
