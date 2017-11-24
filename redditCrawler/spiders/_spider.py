@@ -1,4 +1,5 @@
 import scrapy
+from redditCrawler.items import RedditItem
 
 class RedditSpider(scrapy.Spider):
     name = "rInvesting"
@@ -9,10 +10,26 @@ class RedditSpider(scrapy.Spider):
 
     def parse(self, response):
         for post in response.css('div.sitetable.linklisting div.thing '):
-            yield {
-                'titles': post.css("a.title.may-blank ::text").extract(),
-                'links': post.css('div::attr(data-url)').extract(),
-                }
+            item = RedditItem()
+            item['subreddit'] = post.css('div::attr(data-url)').extract()
+            item['link'] = post.css('div::attr(data-url)').extract()
+            item['title'] = post.css('a.title.may-blank ::text').extract()
+            item['date'] = post.css('time::attr(datetime)').extract()
+            item['upvoted'] = post.css('div.score.unvoted ::text').extract()
+
+            yield item
+
+            
+##            yield {
+##                
+##                'title': post.css('a.title.may-blank ::text').extract(),
+##                'link': post.css('div::attr(data-url)').extract(),
+##                'upvoted': post.css('div.score.unvoted ::text').extract(),
+##                'date': post.css('time::attr(datetime)').extract(),
+##                'comment': post.css('li.first a ::text').extract(),  
+##
+##                }
+        
 ##        titles = response.css("a.title.may-blank ::text").extract()
 ##        links = response.css('p.title a::attr(href)').extract()
 ##        block = response.css('div.sitetable.linklisting div.thing ')
