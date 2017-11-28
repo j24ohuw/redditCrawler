@@ -8,15 +8,17 @@ import odo
 
 class RedditSpider(scrapy.Spider):
     name = "investing"
-    
+    end_date = '2017-11-26'
     start_urls = [
             'https://www.reddit.com/r/investing',
         ]
-
-
+    '''
+    def end_date(self):
+        return end_date
+    '''
     def parse(self, response):
         current_page = response.css('div.sitetable.linklisting div.thing ')
-        one = 1
+        next_page = response.css('span.next-button a::attr(href)').extract_first()
         for post in current_page:
             item = RedditItem()
             item['link'] = post.css('div::attr(data-url)').extract_first()
@@ -33,6 +35,11 @@ class RedditSpider(scrapy.Spider):
             request.meta['item'] = item
             #    one = None
             yield request
+
+        if item['date'].split('T')[0] == self.end_date:
+            yield
+        else: yield Request(url = next_page, callback=self.parse)
+
             
     def parse_thread(self, response):
         item = response.meta['item']
