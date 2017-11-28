@@ -18,7 +18,7 @@ class RedditItem(scrapy.Item):
     post_links = scrapy.Field()
     points = scrapy.Field()
     percent_upvoted = scrapy.Field()
-    thread_df = scrapy.Field()
+    comments = scrapy.Field()
     #top_comment = Field()
 ##
 ##class RedditcrawlerItem(scrapy.Item):

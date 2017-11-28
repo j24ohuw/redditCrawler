@@ -26,7 +26,7 @@ from scrapy.exceptions import DropItem
 ##        return item
 
 class MongoPipeline(object):
-    collection_name = 'data'
+    collection_name = 'data_test'
     
     def __init__(self, mongo_uri, mongo_db):
         self.mongo_uri = mongo_uri
