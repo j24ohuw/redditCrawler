@@ -1,8 +1,10 @@
 import scrapy
+from datetime import datetime as dt
 from redditCrawler.items import RedditItem
-
+import pandas as pd
 class RedditSpider(scrapy.Spider):
-    name = "rInvesting"
+    name = "investing"
+    
     start_urls = [
             'https://www.reddit.com/r/investing',
         ]
@@ -11,15 +13,42 @@ class RedditSpider(scrapy.Spider):
     def parse(self, response):
         for post in response.css('div.sitetable.linklisting div.thing '):
             item = RedditItem()
-            item['subreddit'] = post.css('div::attr(data-url)').extract()
-            item['link'] = post.css('div::attr(data-url)').extract()
-            item['title'] = post.css('a.title.may-blank ::text').extract()
-            item['date'] = post.css('time::attr(datetime)').extract()
-            item['upvoted'] = post.css('div.score.unvoted ::text').extract()
-
+            item['link'] = post.css('div::attr(data-url)').extract_first()
+            item['subreddit'] = item['link'].split('/')[2]
+            item['title'] = post.css('a.title.may-blank ::text').extract_first()
+            item['date'] = post.css('time::attr(datetime)').extract_first().split('T')[0]
+            item['upvotes'] = post.css('div.score.unvoted ::text').extract_first() 
+            #querying votes for threads not yet voted return '•'
+            item['upvotes'] = 0 if item['upvotes'] == '•' else item['upvotes']
+            item['comments'] = post.css('div.entry.unvoted li.first a::text').extract_first()
             yield item
 
-            
+    def parse_thread(self, response):
+        paragraph = response.css('div.sitetable.linklisting div.md p::text').extract()
+        post_links = response.css('div.sitetable.linklisting div.md a::attr(href)').extract()
+        points = int(response.css('div.score span.number::text').extract_first())
+        percent_upvoted = int(re.findall(r'\d+', response.css('div.score::text').extract()[1])[0])
+        
+        df = pd.DataFrame(columns = ['score', 'comment', 'links'])
+        for comment in response.css('div.commentarea div.thing'):
+            try:
+                #fetch author
+                author = comment.css('a.author.may-blank::text').extract_first()
+                #fetch scores
+                df.loc[author, 'score'] = comment.css('span.score.unvoted ::text').extract_first()  
+                #fetch comment
+                df.loc[author, 'comment'] = ''.join(comment.css('div.md')[0].css('::text').extract()[:-1])
+                #fetch link shared
+                links = comment.css('div.md')[0].css('a::attr(href)').extract()
+                df.loc[author, 'links'] = comment.css('div.md')[0].css('a::attr(href)').extract() if len(links) != 0 else np.nan
+                  
+            except:
+                pass           
+
+        #get top comments
+        #get top comments points
+        #get user
+
 ##            yield {
 ##                
 ##                'title': post.css('a.title.may-blank ::text').extract(),
